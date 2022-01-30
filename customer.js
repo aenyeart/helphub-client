@@ -2,11 +2,12 @@
 
 const Client = require('./lib/Client.js');
 const customer = new Client('/help', /*customer's name*/);
+const mockData = require('./lib/mockData.js');
 
 customer.subscribe('connect', () => {
   let payload = {
-    username: 'BillyBobJr',
-    description: 'Help on lab 13',
+    username: mockData.username,
+    description: mockData.description,
   };
   
 
