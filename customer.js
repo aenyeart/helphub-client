@@ -2,6 +2,7 @@
 // require in the { helpRequests } from mock
 // grab one from that array, use value of customer name below
 const Client = require('./lib/Client.js');
+<<<<<<< HEAD
 const { helpRequests } = require('./lib/mockData.js');
 
 const newRequest = helpRequests[Math.floor(Math.random() * helpRequests.length)];
@@ -13,6 +14,15 @@ customer.subscribe('connect', () => {
   let helpRequestData = {
     username: customer.username,
     description: newRequest.description,
+=======
+const customer = new Client('/help', /*customer's name*/);
+const mockData = require('./lib/mockData.js');
+
+customer.subscribe('connect', () => {
+  let payload = {
+    username: mockData.username,
+    description: mockData.description,
+>>>>>>> main
   };
   // console.log('payload', payload);
   customer.subscribe('Ready For Request', (payload) => {
