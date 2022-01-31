@@ -4,24 +4,25 @@
 const Client = require('./lib/Client.js');
 const { helpRequests } = require('./lib/mockData.js');
 
-const newRequest = helpRequests.pop();
+const newRequest = helpRequests[Math.floor(Math.random() * helpRequests.length)];
 
 const customer = new Client('/help', newRequest.username);
 
 customer.subscribe('connect', () => {
+  console.log(`You are connected to the HelpHub server, ${customer.username}`);
   let payload = {
     username: this.username,
     description: newRequest.description,
   };
   
-  customer.subscribe('Ready for Request', (payload) => {
+  customer.subscribe('Ready For Request', (payload) => {
     console.log('You are now connected to the Help Hub server via socket #', payload.customerSocket);
     
     customer.publish('Help Requested', payload);
   });
 
   customer.subscribe('Ticket Generated', (payload) => {
-    console.log('Your help ticket # is', payload.id); // TODO dbl check var name against server
+    console.log('Your help ticket # is', payload); // TODO dbl check var name against server
   });
 
   customer.subscribe('Assigning Ticket', () => {
