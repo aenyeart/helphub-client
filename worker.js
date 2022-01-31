@@ -6,16 +6,19 @@ const workerName = workers.pop();
 const worker = new Client('/help', workerName); // namespace is first arg to Client 
 
 worker.subscribe('connect', () => {
-  let payload = {
-    username: this.username,
+
+  let workerData = {
+    username: worker.username,
   };
 
   let isAvailable = true; // Do I need this?
 
-  worker.subscribe('Ready for Request', (payload) => {
-    console.log('You are now connected to the Help Hub server via socket #', payload.customerSocket);
+  worker.subscribe('Ready For Request', (payload) => { // { clientSocket: socket.id }
+    console.log(worker.username + ', you are now connected to the Help Hub server via socket #', payload.clientSocket);
 
-    worker.publish('Standing By', payload);
+    console.log('The Help Hub server is standing by');
+
+    worker.publish('Standing By', { payload, username: worker.username });
   });
 
   worker.subscribe('Ticket Generated', () => {
@@ -26,12 +29,12 @@ worker.subscribe('connect', () => {
 
   worker.subscribe('Assigning Ticket', (payload) => {
     isAvailable = false;
-    worker.emit('In-Progress', payload);
-    setTimeout(() => {
-      worker.emit('Complete', payload);
-      isAvailable = true;
-      worker.emit('Standing By', { worker: worker.username });
-    }, 4000);
+    worker.publish('In-Progress', payload);
+    // setTimeout(() => {
+    worker.publish('Complete', payload);
+    isAvailable = true;
+    // worker.publish('Standing By', { worker: worker.username });
+    // }, 4000);
   });
 
 });
