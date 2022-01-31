@@ -1,13 +1,18 @@
 'use strict';
-
+// require in the { helpRequests } from mock
+// grab one from that array, use value of customer name below
 const Client = require('./lib/Client.js');
-const customer = new Client('/help', /*customer's name*/);
-const mockData = require('./lib/mockData.js');
+const { helpRequests } = require('./lib/mockData.js');
+
+const newRequest = helpRequests[Math.floor(Math.random() * helpRequests.length)];
+// console.log('newRequest', newRequest);
+const customer = new Client('/help', newRequest.username);
 
 customer.subscribe('connect', () => {
-  let payload = {
-    username: mockData.username,
-    description: mockData.description,
+  // console.log(`You are connected to the HelpHub server, ${customer.username}`);
+  let helpRequestData = {
+    username: customer.username,
+    description: newRequest.description,
   };
   
 
