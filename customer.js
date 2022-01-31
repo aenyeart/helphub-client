@@ -1,6 +1,20 @@
 'use strict';
-
+// require in the { helpRequests } from mock
+// grab one from that array, use value of customer name below
 const Client = require('./lib/Client.js');
+<<<<<<< HEAD
+const { helpRequests } = require('./lib/mockData.js');
+
+const newRequest = helpRequests[Math.floor(Math.random() * helpRequests.length)];
+// console.log('newRequest', newRequest);
+const customer = new Client('/help', newRequest.username);
+
+customer.subscribe('connect', () => {
+  // console.log(`You are connected to the HelpHub server, ${customer.username}`);
+  let helpRequestData = {
+    username: customer.username,
+    description: newRequest.description,
+=======
 const customer = new Client('/help', /*customer's name*/);
 const mockData = require('./lib/mockData.js');
 
@@ -8,12 +22,21 @@ customer.subscribe('connect', () => {
   let payload = {
     username: mockData.username,
     description: mockData.description,
+>>>>>>> main
   };
-  
+  // console.log('payload', payload);
+  customer.subscribe('Ready For Request', (payload) => {
+    console.log(customer.username + ', you are now connected to the Help Hub server via socket #', payload.clientSocket);
+    
+    customer.publish('Help Requested', helpRequestData);
+  });
 
-  customer.publish('Help Requested', payload);
   customer.subscribe('Ticket Generated', (payload) => {
-    console.log('Your help ticket # is', payload.ticketId); // TODO check var name 'ticketId' against server
+    console.log('Your help ticket # is', payload); // TODO dbl check var name against server
+  });
+
+  customer.subscribe('Assigning Ticket', () => {
+    console.log('A service worker is now addressing your problem.');
   });
 
   customer.subscribe('In-progress', () => {
@@ -22,8 +45,18 @@ customer.subscribe('connect', () => {
 
   customer.subscribe('Complete', () => {
     console.log('Your help request has been fulfilled.');
+    customer.disconnect();
   });
 
-
 });
+
+// when WORKER client signs in or completes a ticket, emits "standing by"
+// SERVER on 'standing by' pops next ticket off queue, assigns to that WORKER via payload
+// SERVER emits to CUSTOMER and WORKER 'assigning ticket'
+// on 'assigning ticket' WORKER emits in-progress
+// --> SERVER relays 'in-progress' to CUSTOMER
+// setTimeout, WORKER emits 'Complete'
+// --> SERVER relays 'complete' to CUSTOMER
+// --> CUSTOMER logs 'complete', disconnects socket
+// WORKER emits 'standing by'
 
